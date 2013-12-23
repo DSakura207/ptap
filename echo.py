@@ -3,6 +3,8 @@
 #
 #
 #
+"""Echo the http request send to this uri."""
+
 
 # Add library path
 import library
@@ -14,6 +16,10 @@ import httprober
 import webapp2
 
 class MainHandler(webapp2.RequestHandler):
+    def get(self):
+        p = httprober.prober(self.request, self.response)
+        p.writeInfo()
+
     def get(self):
         p = httprober.prober(self.request, self.response)
         p.writeInfo()
