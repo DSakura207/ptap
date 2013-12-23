@@ -8,6 +8,7 @@ class prober():
     def __init__(self, request, response):
         self.request = request        
         self.response = response
+        self.response.write("<title>Echo Message</title>")
 
     def writeInfo(self):
         self.writeRequestInfo()
