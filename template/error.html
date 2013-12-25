@@ -1,0 +1,14 @@
+<head>
+    <title>Error</title>
+</head>
+{% autoescape true %}
+<body>
+    <h2>Could not complete your request.</h2>
+    <p>
+        Error occurs.<br>
+        Error code: {{ error_code }} <br>
+        Reason:<br>
+        {{ error_reason }}
+    </p>
+</body>
+{% endautoescape %}

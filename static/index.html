@@ -2,24 +2,13 @@
 <html>
 <head>
     <title>Welcome to PTAP</title>
-    
-    <script type="text/javascript">
-        <!-- Return API URI for user. -->
-        function setApiUri(){
-            url = "https://"
-            url += window.location.host
-            url += "/api/1.1/<br>"
-            ApiUrl.innerHTML= url
-        }
-    </script>
-    
 </head>
 <body onload="javascript:setApiUri()">
-    <h1>Welcome to PTAP.</h1><br>
+    <h1>Welcome to PTAP.</h1>
     <p>
         PTAP is a Twitter API proxy in Python, based on GAE.<br>
-        Please set you REST base to the following address:<br>
-        <h3 id="ApiUrl"></h3>
+        Please access your own API proxy by <b>custom</b> URL.<br>
+        If you do not have a custom url and would like to use this API, please click <a href="/api/_authorize">here</a>.
         
     </p>
 </body>

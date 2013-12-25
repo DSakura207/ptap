@@ -1,0 +1,17 @@
+{% autoescape true %}
+<head>
+    <title>{{ title }}</title>
+</head>
+
+<body>
+    <b><i>{{ message }}<br></i></b>
+    <p>
+        {{ detail }}
+    </p>
+    <b><i>{{ import_message }}<br></i></b>
+    <p>
+        Your custom URL is:<br>
+        <b><i>{{ custom_url }}<br></i></b>
+    </p>
+</body>
+{% endautoescape %}

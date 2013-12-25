@@ -17,6 +17,17 @@ handlers:
   script: echo.app
   secure: always
 
+- url: /api/_authorize
+  static_files: static/login.html
+  upload: static/login.html
+
+- url: /api/.*
+  script: api.app
+  secure: always
+
 libraries:
 - name: webapp2
   version: "2.5.2"
+
+- name: jinja2
+  version: "2.6"

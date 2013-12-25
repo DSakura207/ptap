@@ -1,0 +1,15 @@
+<head>
+    <title>Authroize PTAP</title>
+</head>
+<body>
+    <p>
+        In order to use PTAP, you need to authroize PTAP to access your Twitter account.<br>
+        Please set an unique ID for you. 
+    </p>
+    <i><b>If a duplicate UID is found, You will be redirect back to this page.</b></i>
+
+    <form action="/api/authorize_me" method="post">
+        <div><input name="UID" type="text"></div>
+        <div><input type="submit" value="Authroize"></div>
+    </form>
+</body>

@@ -15,15 +15,15 @@ import httprober
 
 import webapp2
 
-class MainHandler(webapp2.RequestHandler):
+class EchoHandler(webapp2.RequestHandler):
     def get(self):
         p = httprober.prober(self.request, self.response)
         p.writeInfo()
 
-    def get(self):
+    def post(self):
         p = httprober.prober(self.request, self.response)
         p.writeInfo()
 
 app = webapp2.WSGIApplication([
-    ('/', MainHandler)
+    (r'/echo/.*', EchoHandler)
 ], debug=True)
