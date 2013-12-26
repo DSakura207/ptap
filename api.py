@@ -43,7 +43,7 @@ class CallbackHandler(webapp2.RequestHandler):
         # If we cannot get anything, the token in callback is illgeal.
         if saved_token == None:
 
-            logging.error("Request token %s is invaild. Aborted." % callback_token['oauth_token'])
+            logging.error("Request token %s not found. Aborted." % callback_token['oauth_token'])
 
             template_values = {
             'error_code': 'Internal Error',
@@ -57,14 +57,19 @@ class CallbackHandler(webapp2.RequestHandler):
 
 
         # create token from saved request token and received verifier
-        logging.debug("Retrieved saved request token pair: %s/%s" % (saved_token.key, saved_token.secret))
-        logging.debug("Retrieved request token verifier: %s" % callback_token['oauth_verifier'])
+        logging.info("Request token found.")
+        logging.debug("Saved UID: %s" % saved_token.UID)
+        logging.debug("Saved request token pair: %s/%s" % (saved_token.key, saved_token.secret))
+
+        logging.info("Token verifier retrieved.")
+        logging.debug("Token verifier: %s" % callback_token['oauth_verifier'])
 
         token = oauth.Token(saved_token.key,
                         saved_token.secret)        
         token.set_verifier(callback_token['oauth_verifier'])
         # get access token from server.
-        logging.debug("Retrive access token/secret pair.")
+        logging.info("Retrive access token/secret pair.")
+        logging.debug("Access token/secret pair by request token verifier %s." % callback_token['oauth_verifier']) 
 
         consumer = oauth.Consumer(consumer_key, consumer_secret)
         client = oauth.Client(consumer, token)
@@ -73,7 +78,9 @@ class CallbackHandler(webapp2.RequestHandler):
         access_token = dict(urlparse.parse_qsl(content))
         exist_token = Token.query(Token.key == access_token['oauth_token']).get()
 
-        logging.info("Retrived access token/secret pair: %s/%s" % (access_token['oauth_token'], access_token['oauth_token_secret']))
+        logging.info("Retrived access token/secret pair.")
+        logging.debug("Access token/secret pair: %s/%s" % (access_token['oauth_token'], access_token['oauth_token_secret']))
+        
 
         # Add that UID with key/secret combination.
         # When we found the same key/secret combination with a different UID,
@@ -82,7 +89,8 @@ class CallbackHandler(webapp2.RequestHandler):
         saved_token.secret = access_token['oauth_token_secret']
         saved_token.put()
 
-        logging.debug("Saved access token/secret pair: %s/%s" % (access_token['oauth_token'], access_token['oauth_token_secret']))
+        logging.info("Save access token/secret pair to db.")
+        logging.debug("Access token/secret pair: %s/%s" % (access_token['oauth_token'], access_token['oauth_token_secret']))
 
         if exist_token and exist_token.secret == access_token['oauth_token_secret']:
 
@@ -161,6 +169,7 @@ class AuthorizeAPI(webapp2.RequestHandler):
             token.put()
 
             logging.info("Saved request token/secret pair in db.")
+            logging.debug("Request token/secret pair: %s/%s" % (request_token['oauth_token'], request_token['oauth_token_secret']))
         
 class APIproxy(webapp2.RequestHandler):
     """docstring for APIproxy"""
@@ -179,13 +188,13 @@ class APIproxy(webapp2.RequestHandler):
         try:
             uid, path = raw_path.split('/', 1)[0], raw_path.split('/', 1)[1]
         except IndexError, e:
-            logging.error(e)
+            logging.error("%s is illgeal raw path. Aborted" % raw_path)
             self.abort(400)
         
         # try to retrieve saved token by uid. If we could not retrieve one, we can do nothing.
         token_query = Token.query(Token.UID == uid).get()
         if token_query == None:
-            logging.error("Cound not find UID. Aborted.")
+            logging.error("%s is illgeal UID. Aborted" % uid)
             self.abort(400)
 
         # request information from server.
@@ -207,6 +216,8 @@ class APIproxy(webapp2.RequestHandler):
         self.response.clear()
 
         logging.info("Add received headers.")
+        logging.debug("Received headers:")
+        logging.debug(server_res)
         for key in server_res.keys():
             self.response.headers.add(key, str(server_res.get(key)))
             #self.response.write(key + '=' + server_res.get(key) + '<br>')
@@ -230,10 +241,15 @@ class TransparentProxy(webapp2.RequestHandler):
         parsed_result = urlparse.urlparse(self.request.url)
         path, qs = parsed_result.path[6:], parsed_result.query
 
-        logging.info("T Mode, requested: " + path + ", " + "QueryString is " + qs)
+        logging.info("T Mode, requested: %s, QueryString is %s" % (path, qs))
+        logging.debug("Request headers:")
+        logging.debug(self.request.headers)
+        logging.debug("Request body:")
+        logging.debug(self.request.body)
 
         import httplib
         headers = []
+        logging.debug("Building request.")
         for key in self.request.headers:
 
             # skip some headers to silence GAE.
@@ -246,8 +262,11 @@ class TransparentProxy(webapp2.RequestHandler):
         try:
             conn.request(method, path + '?' + qs, self.request.body, dict(headers))
             res = conn.getresponse()
+            
             logging.info("Got response from Twitter.")
-            logging.info("Add HTTP headers.")
+            logging.info("Write HTTP headers.")
+            logging.debug("HTTP headers:")
+            logging.debug(res.getheaders())
             for key, value in res.getheaders():
                 # skip some headers to silence GAE.
                 if key == 'Host':
@@ -255,7 +274,9 @@ class TransparentProxy(webapp2.RequestHandler):
                 self.response.headers.add(key, value)
                 
             self.response.write(res.read())
-            logging.info("Response body: " + res.read())
+            logging.info("Response body is written.")
+            logging.debug("Response body:")
+            logging.debug(res.read())
         except Exception, e:
             logging.error(e)
             self.abort(500)
