@@ -172,8 +172,7 @@ class APIproxy(webapp2.RequestHandler):
 
     def do_proxy(self, method):
         # parse raw path and query string.
-        parsed_result = urlparse.urlparse(self.request.url)
-        raw_path, qs = parsed_result.path[5:], parsed_result.query
+        raw_path, qs = self.request.path[5:], self.request.query_string
 
 
         # get UID and requested path. If we could not get two pieces of things, we end with IndexError
@@ -196,9 +195,11 @@ class APIproxy(webapp2.RequestHandler):
         token = oauth.Token(token_query.key, token_query.secret)
         consumer = oauth.Consumer(consumer_key, consumer_secret)
         client = oauth.Client(consumer, token)
-        request_url = twitter_base_url + path
+        request_url = "%s%s?%s" % (twitter_base_url, path, qs)
 
         logging.debug("Request address: %s, Method: %s" % (request_url, method))
+        logging.debug("Request headers:")
+        logging.debug(self.request.headers)
 
         server_res, server_content = client.request(request_url, method, self.request.body, self.request.headers)
 
@@ -211,6 +212,7 @@ class APIproxy(webapp2.RequestHandler):
             #self.response.write(key + '=' + server_res.get(key) + '<br>')
 
         logging.info("Add received body.")
+        logging.debug("Received body is:\n" + server_content)
         self.response.write(server_content)
 
 
