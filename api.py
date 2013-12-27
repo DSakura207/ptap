@@ -181,7 +181,7 @@ class APIproxy(webapp2.RequestHandler):
 
     def do_proxy(self, method):
         # parse raw path and query string.
-        raw_path, qs = self.request.path[5:], self.request.query_string
+        raw_path, qs = self.request.path[7:], self.request.query_string
 
 
         # get UID and requested path. If we could not get two pieces of things, we end with IndexError
@@ -298,5 +298,5 @@ app = webapp2.WSGIApplication([
     ('/api/authorize_me', AuthorizeAPI),
     (r'/api/callback\?*', CallbackHandler),
     (r'/api/t/.*', TransparentProxy),
-    (r'/api/.*', APIproxy),
+    (r'/api/o/.*', APIproxy),
 ], debug=False)

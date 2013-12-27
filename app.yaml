@@ -21,7 +21,7 @@ handlers:
   static_files: static/login.html
   upload: static/login.html
 
-- url: /api/.*
+- url: /api/(t|o|callback)/.*
   script: api.app
   secure: always
 
