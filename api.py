@@ -27,8 +27,8 @@ class Token(ndb.Model):
     """Data model for access token"""
     
     UID = ndb.StringProperty(required = True)
-    key = ndb.StringProperty(required = True)
-    secret = ndb.StringProperty(required = True, indexed = False)
+    oauth_key = ndb.StringProperty(required = True)
+    oauth_secret = ndb.StringProperty(required = True, indexed = False)
                         
 
 class CallbackHandler(webapp2.RequestHandler):
@@ -37,8 +37,28 @@ class CallbackHandler(webapp2.RequestHandler):
     def get(self):
         
         callback_token = dict(urlparse.parse_qsl(self.request.query_string))
+
+        # If we are denied...
+        if 'denied' in callback_token:
+            try:
+                record = Token.query(Token.oauth_key == callback_token['denied']).get()
+                logging.debug(record)
+                record.key.delete()
+            except Exception, e:
+                logging.debug(e)
+            finally:
+                logging.warn("Request token %s is denied. Aborted." % callback_token['denied'])
+
+                template_values = {
+                'error_code': 'Authorization Denied',
+                'error_reason': 'You denied PTAP. Why?',
+                }
+                template = JINJA_ENVIRONMENT.get_template('error.html')
+                self.response.write(template.render(template_values))
+                return
+
         # Query saved request token from db.
-        saved_token = Token.query(Token.key == callback_token['oauth_token']).get()
+        saved_token = Token.query(Token.oauth_key == callback_token['oauth_token']).get()
 
         # If we cannot get anything, the token in callback is illgeal.
         if saved_token == None:
@@ -59,13 +79,13 @@ class CallbackHandler(webapp2.RequestHandler):
         # create token from saved request token and received verifier
         logging.info("Request token found.")
         logging.debug("Saved UID: %s" % saved_token.UID)
-        logging.debug("Saved request token pair: %s/%s" % (saved_token.key, saved_token.secret))
+        logging.debug("Saved request token pair: %s/%s" % (saved_token.oauth_key, saved_token.oauth_secret))
 
         logging.info("Token verifier retrieved.")
         logging.debug("Token verifier: %s" % callback_token['oauth_verifier'])
 
-        token = oauth.Token(saved_token.key,
-                        saved_token.secret)        
+        token = oauth.Token(saved_token.oauth_key,
+                        saved_token.oauth_secret)        
         token.set_verifier(callback_token['oauth_verifier'])
         # get access token from server.
         logging.info("Retrive access token/secret pair.")
@@ -76,7 +96,7 @@ class CallbackHandler(webapp2.RequestHandler):
         resp, content = client.request(access_token_url, "POST")
         # parse token, and look up whether a same key/secret pair is found.
         access_token = dict(urlparse.parse_qsl(content))
-        exist_token = Token.query(Token.key == access_token['oauth_token']).get()
+        exist_token = Token.query(Token.oauth_key == access_token['oauth_token']).get()
 
         logging.info("Retrived access token/secret pair.")
         logging.debug("Access token/secret pair: %s/%s" % (access_token['oauth_token'], access_token['oauth_token_secret']))
@@ -85,14 +105,14 @@ class CallbackHandler(webapp2.RequestHandler):
         # Add that UID with key/secret combination.
         # When we found the same key/secret combination with a different UID,
         # We keep the previous record, but we will notice user about this.
-        saved_token.key = access_token['oauth_token']
-        saved_token.secret = access_token['oauth_token_secret']
+        saved_token.oauth_key = access_token['oauth_token']
+        saved_token.oauth_secret = access_token['oauth_token_secret']
         saved_token.put()
 
         logging.info("Save access token/secret pair to db.")
         logging.debug("Access token/secret pair: %s/%s" % (access_token['oauth_token'], access_token['oauth_token_secret']))
 
-        if exist_token and exist_token.secret == access_token['oauth_token_secret']:
+        if exist_token and exist_token.oauth_secret == access_token['oauth_token_secret']:
 
             logging.info("Same access token/secret pair found.")
 
@@ -111,7 +131,7 @@ class CallbackHandler(webapp2.RequestHandler):
             detail = 'Please keep your custom URL privately.'
             import_message = 'Anyone can send tweet using your URL.'
 
-        custom_url = 'https://' + self.request.host + '/api/' + saved_token.UID + '/'
+        custom_url = 'https://' + self.request.host + '/api/o/' + saved_token.UID + '/'
 
         logging.debug("Parse result html file.")
 
@@ -135,12 +155,12 @@ class AuthorizeAPI(webapp2.RequestHandler):
         logging.debug("Check UID.")
         # determine if UID exist. if so, redirect back to UID setting page.
         id = self.request.get('UID')
-        isUIDexist = Token.query(Token.key == id).get()
+        isUIDexist = Token.query(Token.UID == id).get()
         if isUIDexist:
 
             logging.info("%s is found in db. Redirecting back." % id)
 
-            self.redirect('/api/authorize_me')
+            self.redirect('/api/_authorize')
             return
 
         logging.debug("Request request token.")
@@ -165,7 +185,7 @@ class AuthorizeAPI(webapp2.RequestHandler):
 
             logging.info("Retrieved request token/secret pair:" + request_token['oauth_token'] + "/" + request_token['oauth_token_secret'])
 
-            token = Token(UID = id, key = request_token['oauth_token'], secret = request_token['oauth_token_secret'])
+            token = Token(UID = id, oauth_key = request_token['oauth_token'], oauth_secret = request_token['oauth_token_secret'])
             token.put()
 
             logging.info("Saved request token/secret pair in db.")
@@ -201,7 +221,7 @@ class APIproxy(webapp2.RequestHandler):
          
         logging.info("Request info from server.")
 
-        token = oauth.Token(token_query.key, token_query.secret)
+        token = oauth.Token(token_query.oauth_key, token_query.oauth_secret)
         consumer = oauth.Consumer(consumer_key, consumer_secret)
         client = oauth.Client(consumer, token)
         request_url = "%s%s?%s" % (twitter_base_url, path, qs)

@@ -3,6 +3,6 @@ indexes:
 - kind: Token
   ancestor: yes
   properties:
-  - name: key
-  - name: secret
+  - name: oauth_key
+  - name: oauth_secret
   - name: UID
