@@ -21,6 +21,10 @@ handlers:
   static_files: static/login.html
   upload: static/login.html
 
+- url: /api/(authorize_me|callback)
+  script: api.app
+  secure: always
+
 - url: /api/(o|callback)/.*
   script: api.app
   secure: always
