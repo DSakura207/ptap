@@ -1,17 +1,47 @@
+<!doctype html>
 {% autoescape true %}
 <head>
+    <meta charset="utf-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/ui-darkness/jquery-ui.min.css">
     <title>{{ title }}</title>
+
+    <style>
+        .notice{
+            color: red;
+        }
+    </style>
+    <script>
+    $(document).ready(function(){
+        $( "#success-dialog" ).dialog({
+            draggable: false,
+            height: "auto",
+            width: $( window ).width() / 2.5,
+            resizable: false,
+            modal: true,
+            beforeClose: function(event, ui){event.preventDefault();},
+            
+        });
+    });
+    
+
+      
+    </script>
 </head>
 
 <body>
-    <b><i>{{ message }}<br></i></b>
-    <p>
-        {{ detail }}
-    </p>
-    <b><i>{{ import_message }}<br></i></b>
-    <p>
-        Your custom URL is:<br>
-        <b><i>{{ custom_url }}<br></i></b>
-    </p>
+    <div id="success-dialog" title="Success!">
+        <b><i>{{ message }}<br></i></b>
+        <p>
+            {{ detail }}
+        </p>
+        <b class="notice"><i>{{ import_message }}<br></i></b>
+        <p>
+            Your custom URL is:<br>
+            <b><i>{{ custom_url }}<br></i></b>
+        </p>
+    </div>
+    
 </body>
 {% endautoescape %}

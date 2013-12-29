@@ -1,15 +1,80 @@
-<!-- Index for PTAP -->
-<html>
+<!doctype html>
 <head>
-    <title>Welcome to PTAP</title>
-</head>
-<body onload="javascript:setApiUri()">
-    <h1>Welcome to PTAP.</h1>
-    <p>
-        PTAP is a Twitter API proxy in Python, based on GAE.<br>
-        Please access your own API proxy by <b>custom</b> URL.<br>
-        If you do not have a custom url and would like to use this API, please click <a href="/api/_authorize">here</a>.
+  <meta charset="utf-8">
+  <title>PTAP - Simple Client</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+  <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/ui-darkness/jquery-ui.min.css">
+
+    
+
+  <script>
+  $(document).ready(function(){
+    $( "#login-options" ).accordion({
+        create: function( event, ui ) {
+
+            $( ".apiAddress" ).prepend( window.location.protocol +'//' + window.location.host );
+        }
+
+    });
+    $( "#welcome-dialog" ).dialog({
+        draggable: false,
+        height: "auto",
+        width: $( window ).width() / 2.5,
+        resizable: false,
+        modal: true,
+        beforeClose: function(event, ui){event.preventDefault();},
         
+    });
+    $(function() {
+    $( "a" )
+      .button()
+  });
+
+  });
+
+  
+  </script>
+</head>
+<body>
+ 
+<div id="welcome-dialog" title="Welcome">
+    <p>
+        <h1>Welcome to PATP</h1>
     </p>
+    <p>How would you like to use PTAP?</p>
+    <div id="login-options">
+        <h3>O mode API Proxy</h3>
+            <div>
+                <p>
+                In this mode, PTAP will overwrite all request received, then sends them to Twitter.<br>
+                You need to have an UID to use O mode.
+                </p>
+                <a href="api/_authorize">Register your UID HERE</a>
+            </div>
+        <h3>T mode API Proxy</h3>
+            <div>
+                <p>
+                In this mode, PTAP act as a simple proxy, forwarding requests to Twitter.<br>
+                You need to set the REST base and oAuth base url to the following:
+                </p>
+                REST: <div class="apiAddress">/api/t/1.1/</div>
+                <br>
+                oAuth: <div class="apiAddress">/api/t/oauth/</div>
+                
+            </div>
+        <h3>Simple Client</h3>
+            <div>
+                <p>
+                <a href="client/">Click me!</a>
+                </p>
+            </div>
+  
+    </div>
+</div>
+ 
+
+ 
+ 
 </body>
 </html>

@@ -1,15 +1,58 @@
+<!doctype html>
 <head>
-    <title>Authroize PTAP</title>
+  <meta charset="utf-8">
+  <title>PTAP - Register UID</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+  <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/ui-darkness/jquery-ui.min.css">
+
+    
+
+  <script>
+  $(document).ready(function(){
+    $( "#register-dialog" ).dialog({
+        draggable: false,
+        resizable: false,
+        height: $( window ).height() / 2,
+        width: $( window ).width() / 2.7,
+        modal: true,
+        beforeClose: function(event, ui){event.preventDefault();},
+        buttons: {
+            "Submit": function() {
+                if ($( "#UID" ).val() == '') {
+                  alert("UID could not be blank!")
+                } else{
+                  $( "#UIDform" ).submit();
+                };
+                
+            },
+        },
+    });
+
+
+  });
+
+  
+  </script>
 </head>
 <body>
-    <p>
+ 
+<div id="register-dialog" title="Register UID">
+    <div id="content" >
+    <p >
         In order to use PTAP, you need to authroize PTAP to access your Twitter account.<br>
         Please set an unique ID for you. 
     </p>
     <i><b>If a duplicate UID is found, You will be redirect back to this page.</b></i>
 
-    <form action="/api/authorize_me" method="post">
-        <div><input name="UID" type="text"></div>
-        <div><input type="submit" value="Authroize"></div>
+    <form id="UIDform" action="/api/authorize_me" method="post">
+        <div><input id="UID" name="UID" type="text"></div>
     </form>
+    </div>
+</div>
+ 
+
+ 
+ 
 </body>
+</html>

@@ -1,14 +1,47 @@
+<!doctype html>
 <head>
+    <meta charset="utf-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/ui-darkness/jquery-ui.min.css">
     <title>Error</title>
+    
+    <style>
+        .error {
+            color: red;
+        }
+        .ui-dialog-title{
+            color: red;
+        }
+    </style>
+    <script>
+    $(document).ready(function(){
+        $( "#error-dialog" ).dialog({
+            draggable: false,
+            height: "auto",
+            width: $( window ).width() / 2.5,
+            resizable: false,
+            modal: true,
+            beforeClose: function(event, ui){event.preventDefault();},
+            
+        });
+    });
+    
+
+      
+    </script>
 </head>
 {% autoescape true %}
 <body>
-    <h2>Could not complete your request.</h2>
-    <p>
-        Error occurs.<br>
-        Error code: {{ error_code }} <br>
-        Reason:<br>
-        {{ error_reason }}
-    </p>
+    <div class="error" id="error-dialog" title="Error">
+        <h2 class="error">Could not complete your request.</h2>
+        <p class="error">
+            Error occurs.<br>
+            Error code: {{ error_code }} <br>
+            Reason:<br>
+            {{ error_reason }}
+        </p>
+    </div>
+    
 </body>
 {% endautoescape %}
