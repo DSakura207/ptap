@@ -32,6 +32,14 @@ class TransparentProxy(webapp2.RequestHandler):
                 continue
             headers.append((key, self.request.headers[key]))
 
+        cookie=""
+        for key in self.request.cookies:
+
+            # build cookies, liki
+            cookie += key + '=' + self.request.cookies[key] + '; '
+
+        headers.append(('Cookie', cookie))
+        
         conn = httplib.HTTPSConnection('api.twitter.com')
 
         try:
