@@ -29,6 +29,9 @@ class Token(ndb.Model):
     UID = ndb.StringProperty(required = True)
     oauth_key = ndb.StringProperty(required = True)
     oauth_secret = ndb.StringProperty(required = True, indexed = False)
+    useCustomKey = ndb.BooleanProperty(indexed = False)
+    def_key = ndb.StringProperty(indexed = False, default = consumer_key)
+    def_secret = ndb.StringProperty(indexed = False, default = consumer_secret)
                         
 
 class CallbackHandler(webapp2.RequestHandler):
@@ -57,6 +60,7 @@ class CallbackHandler(webapp2.RequestHandler):
                 self.response.write(template.render(template_values))
                 return
 
+        
         # Query saved request token from db.
         saved_token = Token.query(Token.oauth_key == callback_token['oauth_token']).get()
 
@@ -203,8 +207,7 @@ class APIproxy(webapp2.RequestHandler):
         # parse raw path and query string.
         raw_path, qs = self.request.path[7:], self.request.query_string
 
-
-        # get UID and requested path. If we could not get two pieces of things, we end with IndexError
+        # raw_path is like bla/1.1/blabla. So we separate raw path by the first slash. If we could not get two pieces of things, we end with IndexError
         try:
             uid, path = raw_path.split('/', 1)[0], raw_path.split('/', 1)[1]
         except IndexError, e:

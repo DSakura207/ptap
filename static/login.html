@@ -39,14 +39,27 @@
  
 <div id="register-dialog" title="Register UID">
     <div id="content" >
-    <p >
+    <p>
         In order to use PTAP, you need to authroize PTAP to access your Twitter account.<br>
         Please set an unique ID for you. 
     </p>
     <i><b>If a duplicate UID is found, You will be redirect back to this page.</b></i>
 
     <form id="UIDform" action="/api/authorize_me" method="post">
-        <div><input id="UID" name="UID" type="text"></div>
+        <div ><input id="UID" name="UID" type="text"></div>
+        <div title="Caution! Advanced User Only" style="color:red;">
+          <input id="useCustomKey" type="checkbox">Use custom OAuth Key/secret
+        </div>
+        <table id="customOAuth" style="width:100%">
+          <tr>
+            <td>Custom OAuth Key</td>
+            <td style="width:70%"><input name="custom_key" type="text" style="width:100%"></td>
+          </tr>
+          <tr>
+            <td>Custom OAuth Secret</td>
+            <td style="width:70%"><input name="custom_secret" type="text" style="width:100%"></td>
+          </tr>
+        </table>
     </form>
     </div>
 </div>
