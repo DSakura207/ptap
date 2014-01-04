@@ -169,7 +169,18 @@ class AuthorizeAPI(webapp2.RequestHandler):
 
         logging.debug("Request request token.")
 
-        consumer = oauth.Consumer(consumer_key, consumer_secret)
+        # Check whether custom key/secret pair is used.
+        # If so, a different consumer will be created.
+        useCustomKey = True if self.request.get('useCustomKey') else False
+        customKey = self.request.get('custom_key')
+        customSecret = self.request.get('custom_secret')
+
+        if useCustomKey and customKey and customSecret:
+            consumer = oauth.Consumer(customKey, customSecret)
+        else:
+            consumer = oauth.Consumer(consumer_key, consumer_secret)
+            useCustomKey = False # Invalidate flag.
+        
         client = oauth.Client(consumer)
         resp, content = client.request(request_token_url, "GET")
 
@@ -189,7 +200,15 @@ class AuthorizeAPI(webapp2.RequestHandler):
 
             logging.info("Retrieved request token/secret pair:" + request_token['oauth_token'] + "/" + request_token['oauth_token_secret'])
 
-            token = Token(UID = id, oauth_key = request_token['oauth_token'], oauth_secret = request_token['oauth_token_secret'])
+            token = Token(UID = id, 
+                        oauth_key = request_token['oauth_token'], 
+                        oauth_secret = request_token['oauth_token_secret'])
+            
+            if useCustomKey:
+                token.useCustomKey = True
+                token.def_key = customKey
+                token.def_secret = customSecret
+                
             token.put()
 
             logging.info("Saved request token/secret pair in db.")
@@ -225,7 +244,7 @@ class APIproxy(webapp2.RequestHandler):
         logging.info("Request info from server.")
 
         token = oauth.Token(token_query.oauth_key, token_query.oauth_secret)
-        consumer = oauth.Consumer(consumer_key, consumer_secret)
+        consumer = oauth.Consumer(token_query.def_key, token_query.def_secret)
         client = oauth.Client(consumer, token)
         request_url = "%s%s?%s" % (twitter_base_url, path, qs)
 
