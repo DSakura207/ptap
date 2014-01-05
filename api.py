@@ -29,7 +29,7 @@ class Token(ndb.Model):
     UID = ndb.StringProperty(required = True)
     oauth_key = ndb.StringProperty(required = True)
     oauth_secret = ndb.StringProperty(required = True, indexed = False)
-    useCustomKey = ndb.BooleanProperty(indexed = False)
+    useCustomKey = ndb.BooleanProperty(indexed = False, default = False)
     def_key = ndb.StringProperty(indexed = False, default = consumer_key)
     def_secret = ndb.StringProperty(indexed = False, default = consumer_secret)
                         
