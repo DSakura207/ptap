@@ -33,6 +33,11 @@ handlers:
   script: transparent.app
   secure: always
 
+- url: /tasks/dbMaintance
+  script: dbMaintance.app
+  secure: always
+  login: admin
+
 libraries:
 - name: webapp2
   version: "2.5.2"

@@ -1,0 +1,4 @@
+corn:
+  - description: weekly DB maintance
+    url: /tasks/dbMaintance
+    schedule: every monday 03:00
