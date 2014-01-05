@@ -158,7 +158,7 @@ class AuthorizeAPI(webapp2.RequestHandler):
 
         logging.debug("Check UID.")
         # determine if UID exist. if so, redirect back to UID setting page.
-        id = self.request.get('UID')
+        id = self.request.get('UID').lower()
         isUIDexist = Token.query(Token.UID == id).get()
         if isUIDexist:
 
@@ -200,7 +200,7 @@ class AuthorizeAPI(webapp2.RequestHandler):
 
             logging.info("Retrieved request token/secret pair:" + request_token['oauth_token'] + "/" + request_token['oauth_token_secret'])
 
-            token = Token(UID = id, 
+            token = Token(UID = id.lower(), 
                         oauth_key = request_token['oauth_token'], 
                         oauth_secret = request_token['oauth_token_secret'])
             
@@ -234,7 +234,7 @@ class APIproxy(webapp2.RequestHandler):
             self.abort(400)
         
         # try to retrieve saved token by uid. If we could not retrieve one, we can do nothing.
-        token_query = Token.query(Token.UID == uid).get()
+        token_query = Token.query(Token.UID == uid.lower()).get()
         if token_query == None:
             logging.error("%s is illgeal UID. Aborted" % uid)
             self.abort(400)
