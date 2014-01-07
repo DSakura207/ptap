@@ -1,4 +1,4 @@
 backends:
-  - name: apiBalancer
+  - name: apibalancer
     class: B1
     start: api.app

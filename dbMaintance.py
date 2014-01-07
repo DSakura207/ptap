@@ -1,8 +1,8 @@
 import webapp2
-import api
+from api import Token
 import logging
 
-class ClassName(webapp2.RequestHandler):
+class CleanDB(webapp2.RequestHandler):
     def post(self):
         pass
         
@@ -11,22 +11,26 @@ class ClassName(webapp2.RequestHandler):
         if isScheduledRequest:
             logging.info("Starting DB maintance:")
             logging.info("Remove non-access tokens:")
-            dbClean()
+            self.dbClean()
             logging.info("Remove non-access tokens completed.")
         else:
             # This is for testing. A page should displayed if the request is not by GAE.
             logging.info("Starting DB maintance:")
             logging.info("Remove non-access tokens:")
-            dbClean()
+            self.dbClean()
             logging.info("Remove non-access tokens completed.")
 
     def dbClean(self):
-        nonAccessToken = api.Token.query(Token.isAccessToken == False)
+        nonAccessToken = Token.query(Token.isAccessToken == False)
         it = nonAccessToken.iter()
         nonAccessTokenCount = nonAccessToken.count()
         logging.info("Query result: %d non-access token(s) found" % (nonAccessTokenCount,))
-        while nonAccessToken.has_next():
-            nonAccessToken = nonAccessToken.next()
+        while it.has_next():
+            nonAccessToken = it.next()
             nonAccessToken.key.delete()
-            nonAccessTokenCount--
+            nonAccessTokenCount -= 1
         logging.info("Maintance result: %d non-access token(s) deleted" % (nonAccessTokenCount,))
+
+app = webapp2.WSGIApplication([
+    ('/tasks/dbMaintance', CleanDB),
+], debug=True)
