@@ -32,6 +32,7 @@ class Token(ndb.Model):
     useCustomKey = ndb.BooleanProperty(indexed = False, default = False)
     def_key = ndb.StringProperty(indexed = False, default = consumer_key)
     def_secret = ndb.StringProperty(indexed = False, default = consumer_secret)
+    isAccessToken = ndb.BooleanProperty(default = False)
                         
 
 class CallbackHandler(webapp2.RequestHandler):
@@ -111,6 +112,7 @@ class CallbackHandler(webapp2.RequestHandler):
         # We keep the previous record, but we will notice user about this.
         saved_token.oauth_key = access_token['oauth_token']
         saved_token.oauth_secret = access_token['oauth_token_secret']
+        saved_token.isAccessToken = True
         saved_token.put()
 
         logging.info("Save access token/secret pair to db.")
