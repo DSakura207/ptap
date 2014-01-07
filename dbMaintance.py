@@ -7,6 +7,7 @@ class CleanDB(webapp2.RequestHandler):
         pass
         
     def get(self):
+        # This request only run automatically.
         isScheduledRequest = True if self.request.get('X-Appengine-Cron') else False
         if isScheduledRequest:
             logging.info("Starting DB maintance:")
@@ -14,11 +15,7 @@ class CleanDB(webapp2.RequestHandler):
             self.dbClean()
             logging.info("Remove non-access tokens completed.")
         else:
-            # This is for testing. A page should displayed if the request is not by GAE.
-            logging.info("Starting DB maintance:")
-            logging.info("Remove non-access tokens:")
-            self.dbClean()
-            logging.info("Remove non-access tokens completed.")
+            self.abort(404)
 
     def dbClean(self):
         nonAccessToken = Token.query(Token.isAccessToken == False)
